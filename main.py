@@ -8,33 +8,68 @@ def change_color():
     color = colorchooser.askcolor(title="Pick a color or else")
     text_area.config(fg=color[1])
 
+def background_color():
+    background = colorchooser.askcolor(title="Select background color")
+    text_area.config(fg=background[1])
+
 
 def change_font(*args):
     text_area.config(font=(font_name.get(), size_box.get()))
 
 def new_file():
-    pass
-
+    window.title("Influence")
+    text_area.delete(1.0, END)
 def open_file():
-    pass
+    file = askopenfilename(defaultextension=".txt", file=[("All Files", "*.*"),
+                                                      ("Text Documents", "*.txt")])
+    try:
+        window.title(os.path.basename(file))
+        text_area.delete(1.0, END)
+
+        file = open(file, "r")
+
+        text_area.insert(1.0, file.read())
+
+    except Exception:
+        print("Couldn't read file")
+
+    finally:
+        file.close()
 
 def save_file():
-    pass
+    file = filedialog.asksaveasfilename(initialfile='influence.txt',
+                                        defaultextension=".txt",
+                                        filetypes=[("All Files", "*.*"),
+                                                   ("Text Documents", "*.txt")])
+    if file is None:
+        return
+    else:
+        try:
+            window.title(os.path.basename(file))
+            file = open(file, "w")
+
+            file.write(text_area.get(1.0, END))
+
+        except Exception:
+            print("Couldn't save file")
+
+        finally:
+            file.close()
 
 def cut():
-    pass
+    text_area.event_generate("<<Cut>>")
 
 def copy():
-    pass
+    text_area.event_generate("<<Copy>>")
 
 def paste():
-    pass
+    text_area.event_generate("<<Paste>>")
 
 def about():
-    pass
+    showinfo("About this program", "This is a program written by INFLUENCE")
 
 def quit():
-    pass
+    window.destroy()
 
 window = Tk()
 window.title("Infuence Editor Program")
@@ -57,7 +92,7 @@ font_name = StringVar(window)
 font_name.set("Arial")
 
 font_size = StringVar(window)
-font_size.set("35")
+font_size.set("15")
 
 text_area = Text(window, font=(font_name.get(), font_size.get()))
 
@@ -82,6 +117,31 @@ size_box = Spinbox(frame, from_=1, to=100, textvariable=font_size, command=chang
 size_box.grid(row=0, column=2)
 
 scroll_bar.pack(side=RIGHT, fill=Y)
+
+menu_bar = Menu(window)
+window.config(menu=menu_bar)
+
+file_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="File", menu=file_menu)
+
+file_menu.add_command(label="New", command=new_file)
+file_menu.add_command(label="Open", command=open_file)
+file_menu.add_command(label="Save", command=save_file)
+file_menu.add_separator()
+
+file_menu.add_command(label="Exit", command=quit)
+
+edit_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Edit", menu=edit_menu)
+edit_menu.add_command(label="Cut", command=cut)
+edit_menu.add_command(label="Copy", command=copy)
+edit_menu.add_command(label="Paste", command=paste)
+
+help_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Help", menu=help_menu)
+help_menu.add_command(label="About", command=about)
+
+
 
 
 
